@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets_admin/assets.js';
 import { AdminContext } from '../../store/store.jsx';
 
 const Navbar = () => {
-  const { token, setToken } = useContext(AdminContext);
+  const { setToken } = useContext(AdminContext);
 
   const logoutHandler = () => {
     setToken('');
@@ -12,25 +12,20 @@ const Navbar = () => {
   };
 
   return (
-    <div className="shadow-sm border-b-2 bg-white fixed top-0 left-0 w-full z-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0">
-            <img className="h-10" src={assets.admin_logo} alt="Admin Logo" />
+    <div className="shadow-md border-b border-gray-200 bg-white fixed top-0 left-0 w-full z-20">
+      <div className="max-w-7xl mx-auto px-6 flex justify-between h-16  items-center">
+        <img className="h-[7em] " src={assets.admin_logo} alt="Admin Logo" />
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 text-gray-600">
+            <FaUserCircle className="text-2xl" />
+            <span className="font-medium">Admin</span>
           </div>
-
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <FaUserCircle className="text-2xl text-gray-600" />
-              <span className="text-gray-700">Admin</span>
-            </div>
-            <button 
-              onClick={logoutHandler}
-              className="bg-primary hover:bg-primary/70 text-white px-6 py-2 rounded-3xl transition-all"
-            >
-              Logout
-            </button>
-          </div>
+          <button 
+            onClick={logoutHandler}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md transition"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </div>

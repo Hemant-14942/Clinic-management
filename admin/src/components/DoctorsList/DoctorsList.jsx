@@ -1,19 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useContext, useEffect } from 'react'
 import { AdminContext } from '../../store/store'
-import { Star, Phone, Mail, Calendar } from 'lucide-react'
+import { Mail, Calendar } from 'lucide-react'
 
 const DoctorsList = () => {
-  const { token, backendUrl,loading,fetchDoctors,error,doctors } = useContext(AdminContext)
+  const { loading, fetchDoctors, error, doctors } = useContext(AdminContext)
 
   useEffect(() => {
     fetchDoctors();
-  }, [backendUrl, token]);
+  }, []);
 
   if (loading) {
     return (
       <div className="w-full p-6 flex justify-center items-center min-h-64">
-        <div className="animate-pulse text-primary font-medium">Loading doctors...</div>
+        <div className="animate-pulse text-blue-600 font-medium">Loading doctors...</div>
       </div>
     );
   }
@@ -24,7 +23,7 @@ const DoctorsList = () => {
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
         <button 
           onClick={fetchDoctors}
-          className="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >
           Try Again
         </button>
@@ -48,22 +47,20 @@ const DoctorsList = () => {
           {doctors.map((doctor, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
             >
-              <div className="relative bg-primary/30">
+              <div className="relative bg-blue-50">
                 <img 
                   src={doctor.image || "/api/placeholder/400/300"} 
                   alt={doctor.name}
-                  className="w-full h-56 object-contain "
-                  onError={(e) => {
-                    e.target.src = "/api/placeholder/400/300";
-                  }}
+                  className="w-full h-56 object-contain"
+                  onError={(e) => { e.target.src = "/api/placeholder/400/300"; }}
                 />
                 <div className="absolute top-3 right-3">
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                     doctor.available 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-red-100 text-red-800"
+                      ? "bg-green-100 text-green-700" 
+                      : "bg-red-100 text-red-700"
                   }`}>
                     {doctor.available ? "Available" : "Unavailable"}
                   </div>
@@ -71,11 +68,8 @@ const DoctorsList = () => {
               </div>
               
               <div className="p-5 flex-grow">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-800">{doctor.name}</h3>
-                </div>
-                
-                <p className="text-primary font-medium mt-1">{doctor.speciality}</p>
+                <h3 className="text-xl font-bold text-gray-800">{doctor.name}</h3>
+                <p className="text-blue-600 font-medium mt-1">{doctor.speciality}</p>
                 
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
                   <div className="flex items-center">

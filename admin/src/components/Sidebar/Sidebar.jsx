@@ -4,13 +4,13 @@ import { FaHome, FaCalendarAlt, FaUserMd, FaUserPlus } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
-    <div className="w-72 h-full py-32 px-4 bg-gray-50 z-10 border-r-2 fixed">
-      <div className="flex flex-col gap-4">
+    <div className="w-72 h-full py-32 px-4 bg-white border-r border-gray-200 fixed">
+      <div className="flex flex-col gap-2">
         <NavLink 
           to="/admin-dashboard" 
           className={({ isActive }) => `
-            flex items-center gap-3 p-2 rounded hover:bg-primary/70
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700'}
+            flex items-center gap-3 p-2 rounded-md transition-colors
+            ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
           <FaHome />
@@ -20,8 +20,8 @@ const Sidebar = () => {
         <NavLink 
           to="/all-appointments" 
           className={({ isActive }) => `
-            flex items-center gap-3 p-2 rounded hover:bg-primary/70
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700'}
+            flex items-center gap-3 p-2 rounded-md transition-colors
+            ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
           <FaCalendarAlt />
@@ -31,8 +31,8 @@ const Sidebar = () => {
         <NavLink 
           to="/add-doctor" 
           className={({ isActive }) => `
-            flex items-center gap-3 p-2 rounded hover:bg-primary/70
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700'}
+            flex items-center gap-3 p-2 rounded-md transition-colors
+            ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
           <FaUserPlus />
@@ -42,18 +42,19 @@ const Sidebar = () => {
         <NavLink 
           to="/doctor-list" 
           className={({ isActive }) => `
-            flex items-center gap-3 p-2 rounded hover:bg-primary/70
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700'}
+            flex items-center gap-3 p-2 rounded-md transition-colors
+            ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
           <FaUserMd />
           <span>Doctors List</span>
         </NavLink>
+
         <NavLink 
           to="/book-appointment" 
           className={({ isActive }) => `
-            flex items-center gap-3 p-2 rounded hover:bg-primary/70
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700'}
+            flex items-center gap-3 p-2 rounded-md transition-colors
+            ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
           <FaUserMd />

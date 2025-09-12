@@ -11,7 +11,7 @@ const DoctorAppointmentBooking = () => {
   const [confirmation, setConfirmation] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
-  const { token, backendUrl, fetchDoctors, error, doctors } =
+  const { token, backendUrl, fetchDoctors, doctors } =
     useContext(AdminContext);
 
   // Fetch doctors on mount
@@ -53,7 +53,7 @@ const DoctorAppointmentBooking = () => {
       const res = await axios.post(`${backendUrl}/api/book-appointment`, {
         patientName,
         description,
-        docId: selectedDoctor._id, // ✅ dynamically selected doctor
+        docId: selectedDoctor._id,
         slotDate: selectedDate,
         slotTime: selectedTime,
       });
@@ -75,23 +75,24 @@ const DoctorAppointmentBooking = () => {
 
   return (
     <div className="flex justify-center items-start py-10 bg-gray-50 min-h-screen">
-      <div className="w-full max-w-4xl p-6 bg-white shadow-lg rounded-2xl">
+      <div className="w-full max-w-5xl p-6 bg-white shadow-md rounded-2xl border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
           {/* Left: Doctor Info */}
-          <div className="col-span-1 border-r pr-4 ">
+          <div className="col-span-1 border-r border-gray-200 pr-4">
             <div className="flex flex-col items-center text-center">
               {selectedDoctor ? (
                 <>
                   <img
                     src={selectedDoctor.image}
                     alt={selectedDoctor.name}
-                    className="w-24 h-24 rounded-full  border-2 border-gray-500"
+                    className="w-28 h-28 rounded-full border-2 border-blue-200 shadow-sm"
                   />
-                  <h2 className="text-lg font-semibold text-white">
+                  <h2 className="text-xl font-semibold text-gray-800 mt-3">
                     {selectedDoctor.name}
                   </h2>
-                  <p className="text-gray-400">{selectedDoctor.speciality}</p>
-                  <div className="mt-4 text-sm text-gray-400 space-y-2">
+                  <p className="text-gray-500">{selectedDoctor.speciality}</p>
+                  <div className="mt-4 text-sm text-gray-600 space-y-2">
                     <p>⏱️ Duration: 20 mins</p>
                     <p>💰 Fees: ₹{selectedDoctor.fees}</p>
                     <p>🎓 {selectedDoctor.degree}</p>
@@ -110,7 +111,7 @@ const DoctorAppointmentBooking = () => {
                   )
                 }
                 value={selectedDoctor?._id || ""}
-                className="mt-4 px-3 py-2 rounded bg-gray-800 text-gray-200"
+                className="mt-6 px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full"
               >
                 {doctors.map((doc) => (
                   <option key={doc._id} value={doc._id}>
@@ -122,53 +123,63 @@ const DoctorAppointmentBooking = () => {
           </div>
 
           {/* Right: Form + Calendar & Slots */}
-          <div className="col-span-2 flex flex-col space-y-4">
+          <div className="col-span-2 flex flex-col space-y-5">
             {/* Patient Details */}
-            <h3 className="font-semibold text-lg">Patient Details</h3>
+            <h3 className="font-semibold text-lg text-gray-800">
+              Patient Details
+            </h3>
             <input
               type="text"
               placeholder="Enter Patient Name"
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
-              className="border rounded-lg p-2 w-full"
+              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             <textarea
               placeholder="Describe your health issue"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="border rounded-lg p-2 w-full h-20"
+              className="border rounded-lg p-3 w-full h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
 
             {/* Date Picker */}
-            <h3 className="font-semibold text-lg">Select Date</h3>
-            <input
-              type="date"
-              className="border rounded-lg p-2 w-48"
-              value={selectedDate || ""}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                Select Date
+              </h3>
+              <input
+                type="date"
+                className="border rounded-lg p-2 w-52 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={selectedDate || ""}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
 
             {/* Time Slots */}
-            <h3 className="font-semibold text-lg mt-4">Select Time</h3>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
-              {slots.map((time) => (
-                <button
-                  key={time}
-                  className={`p-2 rounded-lg border text-sm ${
-                    selectedTime === time
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 hover:bg-green-100"
-                  }`}
-                  onClick={() => setSelectedTime(time)}
-                >
-                  {time}
-                </button>
-              ))}
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                Select Time
+              </h3>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+                {slots.map((time) => (
+                  <button
+                    key={time}
+                    className={`p-2 rounded-lg border text-sm transition ${
+                      selectedTime === time
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-gray-100 hover:bg-blue-50 text-gray-700"
+                    }`}
+                    onClick={() => setSelectedTime(time)}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Book Button */}
             <button
-              className="mt-6 w-40 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+              className="mt-6 w-44 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition"
               onClick={handleBook}
               disabled={loading}
             >
@@ -177,9 +188,12 @@ const DoctorAppointmentBooking = () => {
 
             {/* Confirmation */}
             {confirmation && (
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
                 ✅ Appointment booked successfully! <br />
-                Queue Number: <b>{confirmation.queueNumber}</b>
+                Queue Number:{" "}
+                <span className="font-semibold">
+                  {confirmation.queueNumber}
+                </span>
               </div>
             )}
           </div>
