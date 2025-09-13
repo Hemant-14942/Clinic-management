@@ -2,8 +2,12 @@ import React, { useState } from 'react'
 import axios from "axios";
 import { useContext } from 'react';
 import { AdminContext } from '../../store/store';
+import {useNavigate} from 'react-router-dom';
+
+
 
 const Login = () => {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState("Admin")
 
   const {backendUrl,token,setToken} = useContext(AdminContext);
@@ -19,13 +23,19 @@ const Login = () => {
   }
 
   const handleSubmit = async (e) => {
+    console.log("inside handle submit in login page");
+    
     e.preventDefault()
     try {
+      console.log("inside try in login page");
+      
       if(loginType === 'Admin'){
-        const response = await axios.post(backendUrl + '/api/admin/login',formData)        
+        const response = await axios.post(backendUrl + '/api/admin/login',formData)   
+        console.log("response----->",response.data);     
         if(response.data.success){
           localStorage.setItem('token',response.data.token);
           setToken(response.data.token);
+          navigate('/admin-dashboard');
         }
       }
     } catch (error) {

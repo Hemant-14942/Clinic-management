@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Navbar from './components/Navbar/Navbar';
 import Sidebar from './components/Sidebar/Sidebar';
@@ -22,6 +22,7 @@ const App = () => {
         <div className="ml-72 flex-1 p-5 mt-16">
           <Routes>
             <Route path="/admin-dashboard" element={<Dashboard />} />
+            <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
             <Route path="/all-appointments" element={<AppointmentsList />} />
             <Route path="/add-doctor" element={<AddDoctor />} />
             <Route path="/doctor-list" element={<DoctorsList />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaCalendarAlt, FaUserMd, FaUserPlus } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaUserMd, FaUserPlus,FaRegCalendarPlus } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
@@ -57,7 +57,7 @@ const Sidebar = () => {
             ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}
           `}
         >
-          <FaUserMd />
+          <FaRegCalendarPlus />
           <span>Book Appointment</span>
         </NavLink>
       </div>

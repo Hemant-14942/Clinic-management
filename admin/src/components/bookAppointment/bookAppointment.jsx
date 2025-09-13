@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { AdminContext } from "../../store/store";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DoctorAppointmentBooking = () => {
   const [patientName, setPatientName] = useState("");
@@ -11,8 +13,7 @@ const DoctorAppointmentBooking = () => {
   const [confirmation, setConfirmation] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
-  const { token, backendUrl, fetchDoctors, doctors } =
-    useContext(AdminContext);
+  const { token, backendUrl, fetchDoctors, doctors } = useContext(AdminContext);
 
   // Fetch doctors on mount
   useEffect(() => {
@@ -25,6 +26,14 @@ const DoctorAppointmentBooking = () => {
       setSelectedDoctor(doctors[0]);
     }
   }, [doctors, selectedDoctor]);
+
+  // Filter available doctors only
+  const availableDoctors = doctors.filter((doc) => doc.available);
+  useEffect(() => {
+    if (availableDoctors.length > 0 && !selectedDoctor) {
+      setSelectedDoctor(availableDoctors[0]);
+    }
+  }, [availableDoctors, selectedDoctor]);
 
   // Generate time slots (15-min intervals from 9 AM - 6 PM)
   const generateSlots = () => {
@@ -42,32 +51,50 @@ const DoctorAppointmentBooking = () => {
 
   const handleBook = async () => {
     if (!patientName || !description || !selectedDate || !selectedTime) {
-      return alert("Please fill all fields and select date & time");
+      toast.error("⚠️ Please fill all fields and select date & time");
+      return;
     }
     if (!selectedDoctor) {
-      return alert("Please select a doctor");
+      toast.error("⚠️ Please select a doctor");
+      return;
     }
 
     setLoading(true);
-    try {
-      const res = await axios.post(`${backendUrl}/api/book-appointment`, {
-        patientName,
-        description,
-        docId: selectedDoctor._id,
-        slotDate: selectedDate,
-        slotTime: selectedTime,
-      });
 
-      setConfirmation(res.data);
-      // Reset form after booking
-      setPatientName("");
-      setDescription("");
-      setSelectedDate(null);
-      setSelectedTime(null);
+    try {
+      const res = await axios.post(
+        `${backendUrl}/api/admin/book-appointment`,
+        {
+          patientName,
+          description,
+          docId: selectedDoctor._id,
+          slotDate: selectedDate,
+          slotTime: selectedTime,
+        },
+        {
+          headers: {
+            token: token,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        setConfirmation(res.data);
+        toast.success("✅ Appointment booked successfully!");
+
+        // Reset form after booking
+        setPatientName("");
+        setDescription("");
+        setSelectedDate(null);
+        setSelectedTime(null);
+      } else {
+        toast.error(`❌ ${res.data.message}`);
+      }
     } catch (err) {
       console.error(err);
-      alert("Error booking appointment");
+      toast.error("❌ Error booking appointment. Please try again.");
     }
+
     setLoading(false);
   };
 
@@ -75,9 +102,10 @@ const DoctorAppointmentBooking = () => {
 
   return (
     <div className="flex justify-center items-start py-10 bg-gray-50 min-h-screen">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <div className="w-full max-w-5xl p-6 bg-white shadow-md rounded-2xl border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
           {/* Left: Doctor Info */}
           <div className="col-span-1 border-r border-gray-200 pr-4">
             <div className="flex flex-col items-center text-center">
@@ -107,13 +135,13 @@ const DoctorAppointmentBooking = () => {
               <select
                 onChange={(e) =>
                   setSelectedDoctor(
-                    doctors.find((doc) => doc._id === e.target.value)
+                    availableDoctors.find((doc) => doc._id === e.target.value)
                   )
                 }
                 value={selectedDoctor?._id || ""}
                 className="mt-6 px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full"
               >
-                {doctors.map((doc) => (
+                {availableDoctors.map((doc) => (
                   <option key={doc._id} value={doc._id}>
                     {doc.name}
                   </option>
