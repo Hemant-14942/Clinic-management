@@ -1,26 +1,32 @@
 import validator from "validator";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
-import doctorModel from ".././models/doctor.model.js";
+import doctorModel from "../models/doctor.model.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointment.model.js";
 
+// -------------------------
+// Admin Login
+// -------------------------
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
     ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      res.status(200).json({ success: true, token });
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      return res.status(200).json({ success: true, token });
     } else {
-      res
+      return res
         .status(401)
         .json({ success: false, message: "Invalid Email or Password" });
     }
   } catch (error) {
-    console.log(error);
+    console.error("Admin login error:", error);
     res.status(500).json({
       success: false,
       message: "Something Went Wrong",
@@ -28,6 +34,9 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+// -------------------------
+// Add Doctor
+// -------------------------
 const addDoctor = async (req, res) => {
   try {
     const {
@@ -92,6 +101,7 @@ const addDoctor = async (req, res) => {
       about,
       fees,
       address: JSON.parse(address),
+      available: true,
       date: Date.now(),
     };
 
@@ -101,10 +111,15 @@ const addDoctor = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Doctor Added Successfully",
-      newDoctor
+      doctor: {
+        _id: newDoctor._id,
+        name: newDoctor.name,
+        speciality: newDoctor.speciality,
+        image: newDoctor.image,
+      },
     });
   } catch (error) {
-    console.log(error);
+    console.error("Add doctor error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -112,15 +127,18 @@ const addDoctor = async (req, res) => {
   }
 };
 
+// -------------------------
+// List Doctors
+// -------------------------
 const listDoctors = async (req, res) => {
   try {
     const doctors = await doctorModel.find({}).select("-password");
     res.status(200).json({
       success: true,
-      doctors
+      doctors,
     });
   } catch (error) {
-    console.log(error);
+    console.error("List doctors error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -128,32 +146,45 @@ const listDoctors = async (req, res) => {
   }
 };
 
-const listAppointments = async(req,res)=>{
+// -------------------------
+// List Appointments
+// -------------------------
+const listAppointments = async (req, res) => {
   try {
-    const appointmentData = await appointmentModel.find({});
+    const appointmentData = await appointmentModel
+      .find({})
+      .sort({ slotDate: 1, queueNumber: 1 }); // ✅ ordered like hospital queue
+
     return res.json({
-      success:true,
-      appointmentData
-    })
+      success: true,
+      appointmentData,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("List appointments error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
-}
-const bookAppointment = async (req, res) => {
+};
+
+// -------------------------
+// Book Appointment
+// -------------------------
+const bookDocAppointment = async (req, res) => {
   try {
     const { patientName, description, docId, slotDate, slotTime } = req.body;
 
     const docData = await doctorModel.findById(docId).select("-password");
+    if (!docData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
 
     if (!docData.available) {
       return res.json({ success: false, message: "Doctor is not Available" });
     }
 
-    let slots_booked = docData.slots_booked;
+    let slots_booked = docData.slots_booked || {};
 
     if (slots_booked[slotDate]) {
       if (slots_booked[slotDate].includes(slotTime)) {
@@ -165,15 +196,14 @@ const bookAppointment = async (req, res) => {
       slots_booked[slotDate] = [slotTime];
     }
 
-    delete docData.slots_booked;
+    // Clean doctor data
+    const { slots_booked: sb, password, ...doctorDetails } = docData._doc;
 
-    // const userData = await userModel.findById(userId).select("-password");
-
-    // ✅ Find how many appointments this doctor already has for that date
+    // ✅ Find queue number (excluding cancelled)
     const existingAppointments = await appointmentModel.find({
       docId,
       slotDate,
-      cancelled: { $ne: true }, // exclude cancelled appointments
+      status: { $ne: "cancelled" },
     });
 
     const queueNumber = existingAppointments.length + 1;
@@ -181,16 +211,18 @@ const bookAppointment = async (req, res) => {
     const appointmentData = {
       patientName,
       description,
+      docId,
       slotDate,
       slotTime,
-      docData,
+      docData: doctorDetails,
       amount: docData.fees,
       date: Date.now(),
-      queueNumber, // ✅ new field
+      queueNumber,
+      status: "pending", // ✅ default
+      paymentStatus: "unpaid", // ✅ default
     };
 
     const newAppointment = new appointmentModel(appointmentData);
-
     await newAppointment.save();
 
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
@@ -198,15 +230,18 @@ const bookAppointment = async (req, res) => {
     return res.json({
       success: true,
       message: "Appointment Booked Successfully",
-      queueNumber, // ✅ return it to frontend
+      queueNumber,
     });
   } catch (error) {
-    console.log(error);
-    res.json({
-      success: false,
-      message: error.message,
-    });
+    console.error("Book appointment error:", error);
+    res.json({ success: false, message: error.message });
   }
 };
 
-export { addDoctor, loginAdmin, listDoctors,listAppointments, bookAppointment };
+export {
+  addDoctor,
+  loginAdmin,
+  listDoctors,
+  listAppointments,
+  bookDocAppointment,
+};

@@ -20,16 +20,20 @@ const changeAvailablity = async (req, res) => {
 };
 
 const bookDocAppointment = async (req, res) => {
+  console.log("inside bookDocAppointment");
   try {
     const { patientName, description, docId, slotDate, slotTime } = req.body;
 
     const docData = await doctorModel.findById(docId).select("-password");
+    if (!docData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
 
     if (!docData.available) {
       return res.json({ success: false, message: "Doctor is not Available" });
     }
 
-    let slots_booked = docData.slots_booked;
+    let slots_booked = docData.slots_booked || {};
 
     if (slots_booked[slotDate]) {
       if (slots_booked[slotDate].includes(slotTime)) {
@@ -41,32 +45,30 @@ const bookDocAppointment = async (req, res) => {
       slots_booked[slotDate] = [slotTime];
     }
 
-    delete docData.slots_booked;
+    // Clean doctor data before saving
+    const { slots_booked: sb, password, ...doctorDetails } = docData._doc;
 
-    // const userData = await userModel.findById(userId).select("-password");
-
-    // ✅ Find how many appointments this doctor already has for that date
+    // ✅ Find queue number
     const existingAppointments = await appointmentModel.find({
       docId,
       slotDate,
-      cancelled: { $ne: true }, // exclude cancelled appointments
+      cancelled: { $ne: true },
     });
-
     const queueNumber = existingAppointments.length + 1;
 
     const appointmentData = {
       patientName,
       description,
+      docId,   // ✅ include docId
       slotDate,
       slotTime,
-      docData,
+      docData: doctorDetails,  // ✅ cleaned doctor details
       amount: docData.fees,
       date: Date.now(),
-      queueNumber, // ✅ new field
+      queueNumber,
     };
 
     const newAppointment = new appointmentModel(appointmentData);
-
     await newAppointment.save();
 
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
@@ -74,14 +76,11 @@ const bookDocAppointment = async (req, res) => {
     return res.json({
       success: true,
       message: "Appointment Booked Successfully",
-      queueNumber, // ✅ return it to frontend
+      queueNumber,
     });
   } catch (error) {
     console.log(error);
-    res.json({
-      success: false,
-      message: error.message,
-    });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -140,6 +139,41 @@ const cancelDocAppointmnet = async(req,res)=>{
   }
 }
 
-const editDoctor = async (req, res) => {};
+const editDoctor = async (req, res) => {
+  try {
+    const { docId, name, speciality, available, fees, experience } = req.body;
 
-export { changeAvailablity,bookDocAppointment,listUserAppointments,cancelDocAppointmnet };
+    if (!docId) {
+      return res.status(400).json({ success: false, message: "Doctor ID is required" });
+    }
+
+    // Build an update object dynamically
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (speciality) updateData.speciality = speciality;
+    if (available !== undefined) updateData.available = available;
+    if (fees !== undefined) updateData.fees = fees;
+    if (experience) updateData.experience = experience;
+
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(docId, updateData, { new: true }).select("-password");
+
+    if (!updatedDoctor) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Doctor information updated successfully",
+      doctor: updatedDoctor
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+export { changeAvailablity,bookDocAppointment,listUserAppointments,cancelDocAppointmnet,editDoctor };

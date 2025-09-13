@@ -4,6 +4,7 @@ import {
   listAppointments,
   listDoctors,
   loginAdmin,
+  bookDocAppointment
 } from "../controllers/admin.controller.js";
 import { changeAvailablity } from "../controllers/doctor.controller.js";
 import upload from "../middlewares/multer.js";
@@ -12,6 +13,7 @@ const adminRouter = express.Router();
 
 adminRouter.post("/login", loginAdmin);
 adminRouter.post("/add-doctor", authAdmin, upload.single("image"), addDoctor);
+adminRouter.post('/book-appointment',authAdmin,bookDocAppointment);
 adminRouter.get("/list-doctors", listDoctors);
 adminRouter.get("/list-appointments",authAdmin ,listAppointments);
 adminRouter.post("/change-availability", authAdmin, changeAvailablity);
