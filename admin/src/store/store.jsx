@@ -13,8 +13,8 @@ export const AdminProvider = ({children}) =>{
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // const backendUrl = "https://curemeet-production.up.railway.app";
-    const backendUrl = "http://localhost:8000";
+    const backendUrl = "https://clinic-management-w3n3.onrender.com";
+    // const backendUrl = "http://localhost:8000";
     
     const getUserCount = async () =>{
       try {
