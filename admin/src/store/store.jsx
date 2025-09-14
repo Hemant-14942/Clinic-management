@@ -13,7 +13,7 @@ export const AdminProvider = ({children}) =>{
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const backendUrl = "https://clinic-management-w3n3.onrender.com";
+    const backendUrl = "https://clinic-management-1wza.onrender.com";
     // const backendUrl = "http://localhost:8000";
     
     const getUserCount = async () =>{
@@ -21,6 +21,7 @@ export const AdminProvider = ({children}) =>{
         const response = await axios.get(`${backendUrl}/api/user/get-count`);
         setUserCount(response.data.userCount);
       } catch (error) {
+        console.error("Error fetching user count:", error);
         
       }
     }
