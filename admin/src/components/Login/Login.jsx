@@ -1,16 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import axios from "axios";
-import { useContext } from 'react';
 import { AdminContext } from '../../store/store';
-import {useNavigate} from 'react-router-dom';
-
-
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [loginType, setLoginType] = useState("Admin")
-
-  const {backendUrl,token,setToken} = useContext(AdminContext);
+  const { backendUrl, setToken } = useContext(AdminContext);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -19,41 +16,33 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({...prev,[name]: value}))
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e) => {
-    console.log("inside handle submit in login page");
-    
     e.preventDefault()
     try {
-      console.log("inside try in login page");
-      
-      if(loginType === 'Admin'){
-        const response = await axios.post(backendUrl + '/api/admin/login',formData)   
-        console.log("response----->",response.data);     
-        if(response.data.success){
-          localStorage.setItem('token',response.data.token);
-          setToken(response.data.token);
-          navigate('/admin-dashboard');
-        }
+      const response = await axios.post(`${backendUrl}/api/admin/login`, formData)
+      console.log("response----->", response.data);
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        setToken(response.data.token);
+        toast.success("Login successful 🎉", { position: "top-right" });
+        setTimeout(() => navigate('/admin-dashboard'), 1500); // navigate after toast
+      } else {
+        toast.error(response.data.message || "Login failed ❌", { position: "top-right" });
       }
     } catch (error) {
-      console.log(error);
+      console.log("Login error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong 😢", { position: "top-right" });
     }
-  }
-
-  const toggleLoginType = () => {
-    setLoginType(prev => prev === "Admin" ? "Doctor" : "Admin")
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-center">{loginType} Login</h2>
-          
-        </div>
+        <h2 className="text-2xl font-bold text-center mb-6">Admin Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
@@ -64,7 +53,7 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary"
-              placeholder={`Enter ${loginType.toLowerCase()} email`}
+              placeholder="Enter admin email"
               required
             />
           </div>
@@ -77,7 +66,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary"
-              placeholder={`Enter ${loginType.toLowerCase()} password`}
+              placeholder="Enter admin password"
               required
             />
           </div>
@@ -85,16 +74,12 @@ const Login = () => {
             type="submit"
             className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/50 transition-colors"
           >
-            Login as {loginType}
+            Login
           </button>
         </form>
-        <button 
-            onClick={toggleLoginType}
-            className=" mt-5"
-          >
-            Are you a <span className='text-primary hover:text-green-700'> {loginType === "Admin" ? "Doctor" : "Admin"} </span> ? Login Here
-          </button>
       </div>
+      {/* Toast container must be inside your component tree */}
+      <ToastContainer />
     </div>
   )
 }
