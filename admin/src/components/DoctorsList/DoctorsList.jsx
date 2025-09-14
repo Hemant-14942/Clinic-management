@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState, useMemo } from "react";
 import { AdminContext } from "../../store/store";
 import { Mail, Calendar, Edit2, Search } from "lucide-react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DoctorsList = () => {
   const { loading, fetchDoctors, error, doctors, backendUrl, token } =
@@ -16,7 +18,6 @@ const DoctorsList = () => {
     experience: "",
   });
 
-  // Filters state
   const [filters, setFilters] = useState({
     speciality: "all",
     availability: "all",
@@ -24,7 +25,14 @@ const DoctorsList = () => {
   });
 
   useEffect(() => {
-    fetchDoctors();
+    const loadDoctors = async () => {
+      try {
+        await fetchDoctors();
+      } catch (err) {
+        toast.error("Failed to load doctors");
+      }
+    };
+    loadDoctors();
   }, []);
 
   const handleEditClick = (doctor) => {
@@ -49,12 +57,13 @@ const DoctorsList = () => {
       if (data.success) {
         fetchDoctors();
         setEditingDoctor(null);
+        toast.success("Doctor updated successfully!");
       } else {
-        alert(data.message);
+        toast.error(data.message || "Failed to update doctor.");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update doctor.");
+      toast.error("Failed to update doctor.");
     }
   };
 
@@ -83,13 +92,14 @@ const DoctorsList = () => {
 
   return (
     <div className="w-full p-8">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header + Filters */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <h2 className="text-2xl font-bold text-gray-800">👨‍⚕️ Our Doctors</h2>
 
         {!loading && (
           <div className="flex flex-wrap gap-3">
-            {/* Search */}
             <div className="relative">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               <input
@@ -103,7 +113,6 @@ const DoctorsList = () => {
               />
             </div>
 
-            {/* Speciality */}
             <select
               value={filters.speciality}
               onChange={(e) =>
@@ -118,7 +127,6 @@ const DoctorsList = () => {
               ))}
             </select>
 
-            {/* Availability */}
             <select
               value={filters.availability}
               onChange={(e) =>
@@ -134,7 +142,6 @@ const DoctorsList = () => {
         )}
       </div>
 
-      {/* Conditional Rendering */}
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px] text-gray-500">
           Loading doctors...
@@ -150,7 +157,6 @@ const DoctorsList = () => {
               key={index}
               className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.01] transition-all duration-300 flex flex-col"
             >
-              {/* Doctor Image */}
               <div className="relative">
                 <img
                   src={doctor.image || "/api/placeholder/400/300"}
@@ -179,7 +185,6 @@ const DoctorsList = () => {
                 </div>
               </div>
 
-              {/* Doctor Info */}
               <div className="p-5 flex-grow">
                 <h3 className="text-xl font-bold text-gray-900">{doctor.name}</h3>
                 <p className="text-blue-600 font-medium">{doctor.speciality}</p>
@@ -214,7 +219,6 @@ const DoctorsList = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
       {editingDoctor && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
