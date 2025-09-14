@@ -169,6 +169,35 @@ const listAppointments = async (req, res) => {
 };
 
 // -------------------------
+// delete Appointments
+// -------------------------
+const deleteAppointment = async (req, res) => {
+  console.log("inside delete appointment");
+
+  try {
+    const { id } = req.params;
+    // console.log("id---->", id);
+
+    // Check if it exists first
+    const existing = await appointmentModel.findById(id);
+    // console.log("existing---->", existing);
+
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    await appointmentModel.findByIdAndDelete(id);
+
+    res.json({ success: true, message: "Appointment deleted successfully" });
+  } catch (error) {
+    console.error("delete error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+
+
+// -------------------------
 // Book Appointment
 // -------------------------
 const bookDocAppointment = async (req, res) => {
@@ -238,10 +267,41 @@ const bookDocAppointment = async (req, res) => {
   }
 };
 
+
+// ------------------
+// update appointment
+// ------------------
+const updateAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const updatedAppointment = await appointmentModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedAppointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Appointment updated successfully",
+      appointment: updatedAppointment,
+    });
+  } catch (error) {
+    console.error("Update appointment error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 export {
   addDoctor,
   loginAdmin,
   listDoctors,
   listAppointments,
   bookDocAppointment,
+  updateAppointment,
+  deleteAppointment,
 };

@@ -90,9 +90,7 @@ const DoctorsList = () => {
     <div className="w-full p-8">
       {/* Header + Filters */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">
-          👨‍⚕️ Our Doctors
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800">👨‍⚕️ Our Doctors</h2>
 
         <div className="flex flex-wrap gap-3">
           {/* Search */}
@@ -185,12 +183,8 @@ const DoctorsList = () => {
 
             {/* Doctor Info */}
             <div className="p-5 flex-grow">
-              <h3 className="text-xl font-bold text-gray-900">
-                {doctor.name}
-              </h3>
-              <p className="text-blue-600 font-medium">
-                {doctor.speciality}
-              </p>
+              <h3 className="text-xl font-bold text-gray-900">{doctor.name}</h3>
+              <p className="text-blue-600 font-medium">{doctor.speciality}</p>
 
               <div className="mt-4 space-y-2 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
@@ -223,8 +217,14 @@ const DoctorsList = () => {
 
       {/* Edit Modal */}
       {editingDoctor && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-96 shadow-lg">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+          onClick={() => setEditingDoctor(null)} // close when clicking overlay
+        >
+          <div
+            className="bg-white p-6 rounded-xl w-96 shadow-lg"
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
+          >
             <h3 className="text-lg font-bold mb-4 text-gray-800">
               ✏️ Edit Doctor Info
             </h3>

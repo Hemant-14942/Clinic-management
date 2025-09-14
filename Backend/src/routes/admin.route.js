@@ -4,7 +4,9 @@ import {
   listAppointments,
   listDoctors,
   loginAdmin,
-  bookDocAppointment
+  bookDocAppointment,
+  updateAppointment,
+  deleteAppointment
 } from "../controllers/admin.controller.js";
 import { changeAvailablity } from "../controllers/doctor.controller.js";
 import upload from "../middlewares/multer.js";
@@ -16,6 +18,8 @@ adminRouter.post("/add-doctor", authAdmin, upload.single("image"), addDoctor);
 adminRouter.post('/book-appointment',authAdmin,bookDocAppointment);
 adminRouter.get("/list-doctors", listDoctors);
 adminRouter.get("/list-appointments",authAdmin ,listAppointments);
+adminRouter.put("/update-appointment/:id",authAdmin ,updateAppointment);
 adminRouter.post("/change-availability", authAdmin, changeAvailablity);
+adminRouter.delete("/delete-appointment/:id", authAdmin,deleteAppointment );
 
 export default adminRouter;

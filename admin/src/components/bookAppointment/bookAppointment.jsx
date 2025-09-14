@@ -2,7 +2,10 @@ import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { AdminContext } from "../../store/store";
 import { toast, ToastContainer } from "react-toastify";
+import DatePicker from "react-datepicker";
+
 import "react-toastify/dist/ReactToastify.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 const DoctorAppointmentBooking = () => {
   const [patientName, setPatientName] = useState("");
@@ -68,7 +71,7 @@ const DoctorAppointmentBooking = () => {
           patientName,
           description,
           docId: selectedDoctor._id,
-          slotDate: selectedDate,
+          slotDate: selectedDate.toISOString().split("T")[0], // formatted date
           slotTime: selectedTime,
         },
         {
@@ -82,7 +85,7 @@ const DoctorAppointmentBooking = () => {
         setConfirmation(res.data);
         toast.success("✅ Appointment booked successfully!");
 
-        // Reset form after booking
+        // Reset form
         setPatientName("");
         setDescription("");
         setSelectedDate(null);
@@ -175,11 +178,13 @@ const DoctorAppointmentBooking = () => {
               <h3 className="font-semibold text-lg text-gray-800 mb-2">
                 Select Date
               </h3>
-              <input
-                type="date"
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                minDate={new Date()}
+                dateFormat="yyyy-MM-dd"
                 className="border rounded-lg p-2 w-52 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={selectedDate || ""}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                placeholderText="Choose a date"
               />
             </div>
 

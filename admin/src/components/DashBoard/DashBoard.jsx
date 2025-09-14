@@ -74,7 +74,7 @@ const Dashboard = () => {
         
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <StatCard title="Total Users" value={userCount} color="blue" />
+          {/* <StatCard title="Total Users" value={userCount} color="blue" /> */}
           <StatCard title="Appointments" value={appointments.filter(item => !item.cancelled).length} color="green" />
           <StatCard title="Active Doctors" value={doctors.length} color="indigo" />
         </div>
@@ -105,11 +105,11 @@ const Dashboard = () => {
                   .map((appointment, index) => (
                     <AppointmentRow
                       key={index}
-                      name={appointment.userData?.name || "N/A"}
+                      name={appointment.patientName || "N/A"}
                       doctor={appointment.docData?.name || "N/A"}
                       date={formatDate(appointment.slotDate || appointment.date)}
                       time={appointment.slotTime || "N/A"}
-                      status={appointment.isCompleted ? "Completed" : "Pending"}
+                      status={appointment.status || "N/A"}
                     />
                   ))}
               </tbody>
