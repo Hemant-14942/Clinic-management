@@ -248,7 +248,7 @@ const bookDocAppointment = async (req, res) => {
       date: Date.now(),
       queueNumber,
       status: "pending", // ✅ default
-      paymentStatus: "unpaid", // ✅ default
+      paymentStatus: "pending", // ✅ default
     };
 
     const newAppointment = new appointmentModel(appointmentData);
